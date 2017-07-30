@@ -25,8 +25,9 @@ make
 make upload
 ```
 
-### Run them serparately
+### Run them serparately on the PI
 terminal 1
 ```
+roscore
 rosrun rosserial_python serial_node.py __name:=L298N_node _port:=/dev/ttyACM0
 ```
