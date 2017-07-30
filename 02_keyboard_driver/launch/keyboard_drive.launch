@@ -1,0 +1,11 @@
+<launch>
+
+  <!-- Load Rover Control information -->
+  <!-- <include file="$(find rover_control)/launch/rover_control.launch"/> -->
+
+  <!-- Load the Arduino node -->
+  <node respawn="true" pkg ="rosserial_python" type="serial_node.py" name="L298N_node" args="/dev/ttyACM0" />
+
+  <node pkg="keyboard_driver" type="keyboard_driver" name="keyboard_driver"/>
+
+</launch>
