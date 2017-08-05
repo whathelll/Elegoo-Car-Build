@@ -1,5 +1,5 @@
 # Elegoo-Car-Build
-Incremental build of the Elegoo car with Raspberry PI and Arduino
+Incremental build of the Elegoo car with Raspberry PI and Arduino. This is a combination of various sources adapted for my own learning from basic steps and incrementing to a more advanced car.
 
 ## Raspberry PI Installation
 Get the Raspbian Lite Image
@@ -35,15 +35,29 @@ sudo vi /etc/sysctl.conf
 Install ROS Kinetic
 http://wiki.ros.org/kinetic/Installation/Ubuntu
 
+Enable remote editing of files on PI from a desktop computer. Do this on the ubuntu desktop to have access to files on PI at /mnt/pi
+```
+sudo apt-get install sshfs
+sudo mkdir /mnt/pi
+sudo sshfs -o allow_other,defer_permissions,IdentityFile=~/.ssh/id_rsa pi@pi:/ /mnt/pi  #replace pi@pi with the correct one
+```
 
 ## Arduino Installation
 ```
 sudo apt-get install arduino
 ```
 
+On the PI
+```
+mkdir ~/sdc_ws
+mkdir ~/sdc_ws/src
+cd ~/sdc_ws
+catkin_make
+cd src
+git clone #this repo
+```
 
-
-This is a combination of various sources adapted for my own learning from basic steps and incrementing to a more advanced car
+Start on [01_test_arduino/README.md](01_test_arduino/README.md)
 
 ## References:
 https://github.com/wilselby/diy_driverless_car_ROS
