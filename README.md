@@ -33,7 +33,12 @@ sudo vi /etc/sysctl.conf
 ```
 
 Install ROS Kinetic
-http://wiki.ros.org/kinetic/Installation/Ubuntu
+```
+# increase the swap space first
+vi /etc/dphys-swapfile  #set CONF_SWAPSIZE=1024
+```
+http://wiki.ros.org/ROSberryPi/Installing%20ROS%20Kinetic%20on%20the%20Raspberry%20Pi
+
 
 Enable remote editing of files on PI from a desktop computer. Do this on the ubuntu desktop to have access to files on PI at /mnt/pi
 ```
