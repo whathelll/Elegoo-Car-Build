@@ -39,7 +39,7 @@ Enable remote editing of files on PI from a desktop computer. Do this on the ubu
 ```
 sudo apt-get install sshfs
 sudo mkdir /mnt/pi
-sudo sshfs -o allow_other,defer_permissions,IdentityFile=~/.ssh/id_rsa pi@pi:/ /mnt/pi  #replace pi@pi with the correct one
+sudo sshfs -o allow_other,IdentityFile=~/.ssh/id_rsa pi@pi:/ /mnt/pi  #replace pi@pi with the correct one
 ```
 
 ## Arduino Installation
