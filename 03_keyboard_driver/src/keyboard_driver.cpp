@@ -93,6 +93,7 @@ void KeyboardDriver::keyLoop()
 
     linear_=angular_=0;
     ROS_DEBUG("value: 0x%02X\n", c);
+    puts(std::string(1,c));
 
     switch(c)
     {
