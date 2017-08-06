@@ -1,14 +1,7 @@
+#include <ncurses.h>
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
 #include <signal.h>
-#include <termios.h>
-#include <stdio.h>
-
-#define KEYCODE_R 0x43
-#define KEYCODE_L 0x44
-#define KEYCODE_U 0x41
-#define KEYCODE_D 0x42
-#define KEYCODE_Q 0x71
 
 class KeyboardDriver
 {
@@ -24,12 +17,12 @@ private:
   ros::Publisher twist_pub_;
 
 };
-
+//
 KeyboardDriver::KeyboardDriver():
   linear_(0),
   angular_(0),
-  l_scale_(2.0),
-  a_scale_(2.0)
+  l_scale_(0.25),
+  a_scale_(1)
 {
   nh_.param("scale_angular", a_scale_, a_scale_);
   nh_.param("scale_linear", l_scale_, l_scale_);
@@ -37,17 +30,13 @@ KeyboardDriver::KeyboardDriver():
   twist_pub_ = nh_.advertise<geometry_msgs::Twist>("rover_velocity_controller/cmd_vel", 1);
 }
 
-int kfd = 0;
-struct termios cooked, raw;
-
 void quit(int sig)
 {
   (void)sig;
-  tcsetattr(kfd, TCSANOW, &cooked);
+  endwin();
   ros::shutdown();
   exit(0);
 }
-
 
 int main(int argc, char** argv)
 {
@@ -64,72 +53,63 @@ int main(int argc, char** argv)
 
 void KeyboardDriver::keyLoop()
 {
-  char c;
-  bool dirty=false;
+  //we will be sending commands of type "twist"
+  geometry_msgs::Twist base_cmd;
 
+  char cmd;
+  initscr(); //get terminal environment variables
+  printw("Type a command and then press enter. "
+    "Use 'w','a','s', and 'd' to navigate and 'q' to exit.\n");
+  cbreak();  //line buffering disabled; pass on everything
+  timeout(500);  //getch blocks for 1 second
 
-  // get the console in raw mode
-  tcgetattr(kfd, &cooked);
-  memcpy(&raw, &cooked, sizeof(struct termios));
-  raw.c_lflag &=~ (ICANON | ECHO);
-  // Setting a new line, then end of file
-  raw.c_cc[VEOL] = 1;
-  raw.c_cc[VEOF] = 2;
-  tcsetattr(kfd, TCSANOW, &raw);
+  while(nh_.ok()){
 
-  puts("Reading from keyboard");
-  puts("---------------------------");
-  puts("Use arrow keys to move the rover.");
+    cmd = getch();
 
-
-  for(;;)
-  {
-    // get the next event from the keyboard
-    if(read(kfd, &c, 1) < 0)
+    if(cmd !='w' && cmd !='a' && cmd !='s' && cmd !='d' && cmd !='q' && cmd != 'e' && cmd != -1)
     {
-      perror("read():");
-      exit(-1);
+      std::cout << "unknown command...\n\r";
+      continue;
     }
 
-    linear_=angular_=0;
-    ROS_DEBUG("value: 0x%02X\n", c);
-    puts(std::string(1,c));
-
-    switch(c)
-    {
-      case KEYCODE_L:
-        ROS_DEBUG("LEFT");
-        angular_ = 1.0;
-        dirty = true;
-        break;
-      case KEYCODE_R:
-        ROS_DEBUG("RIGHT");
-        angular_ = -1.0;
-        dirty = true;
-        break;
-      case KEYCODE_U:
-        ROS_DEBUG("UP");
-        linear_ = 1.0;
-        dirty = true;
-        break;
-      case KEYCODE_D:
-        ROS_DEBUG("DOWN");
-        linear_ = -1.0;
-        dirty = true;
-        break;
+    base_cmd.linear.x = base_cmd.linear.y = base_cmd.angular.z = 0.0;
+    //move forward
+    if(cmd =='w'){
+      linear_ = 1.0;
+      angular_ = 0.0;
     }
-
-
-    geometry_msgs::Twist twist;
-    twist.angular.z = a_scale_*angular_;
-    twist.linear.x = l_scale_*linear_;
-    if(dirty ==true)
-    {
-      twist_pub_.publish(twist);
-      dirty=false;
+    //move backwards
+    else if(cmd =='s'){
+      linear_ = -1.0;
+      angular_ = 0.0;
     }
+    //turn left (yaw) and drive forward at the same time
+    else if(cmd =='a'){
+      linear_ = 0.0;
+      angular_ = 1;
+    }
+    //turn right (yaw) and drive forward at the same time
+    else if(cmd =='d'){
+      linear_ = 0.0;
+      angular_ = -1;
+    }
+    else if(cmd == -1 || cmd == 'q'){
+      linear_ = 0.0;
+      angular_ = 0.0;
+    }
+    // //quit
+    // else if(cmd =='q'){
+    //   base_cmd.angular.z = 0.0;
+    //   base_cmd.linear.x = 0.0;
+    // }
+    base_cmd.angular.z = angular_ * a_scale_;
+    base_cmd.linear.x = linear_ * l_scale_;
+    //publish the assembled command
+    twist_pub_.publish(base_cmd);
+
+    std::cout << "\n\r";
   }
-
-
+  nocbreak(); //return terminal to "cooked" mode
   return;
 }

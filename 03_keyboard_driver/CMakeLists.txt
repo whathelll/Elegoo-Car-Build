@@ -138,6 +138,7 @@ add_executable(keyboard_driver src/keyboard_driver.cpp)
 ## Specify libraries to link a library or executable target against
 target_link_libraries(keyboard_driver
   ${catkin_LIBRARIES}
+  ncurses
 )
 
 #############
