@@ -1,3 +1,6 @@
+# Do the ROS tutorials first
+http://wiki.ros.org/ROS/Tutorials
+
 # Manual Keyboard Driving
 
 Follow the "Adding Released Packages" section to add geometry_msgs, rosserial, rosserial_arduino

@@ -21,8 +21,8 @@ private:
 KeyboardDriver::KeyboardDriver():
   linear_(0),
   angular_(0),
-  l_scale_(0.25),
-  a_scale_(1)
+  l_scale_(1),
+  a_scale_(10)
 {
   nh_.param("scale_angular", a_scale_, a_scale_);
   nh_.param("scale_linear", l_scale_, l_scale_);
@@ -61,7 +61,7 @@ void KeyboardDriver::keyLoop()
   printw("Type a command and then press enter. "
     "Use 'w','a','s', and 'd' to navigate and 'q' to exit.\n");
   cbreak();  //line buffering disabled; pass on everything
-  timeout(500);  //getch blocks for 1 second
+  timeout(100);  //getch blocks for 1 second
 
   while(nh_.ok()){
 
